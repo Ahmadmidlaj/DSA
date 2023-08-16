@@ -1,0 +1,62 @@
+=======================merge non overlapping intervals===================================
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int compareIntervals(const void* a, const void* b) {
+    return (*(int(*)[2])a)[0] - (*(int(*)[2])b)[0];
+}
+
+void mergeIntervals(int intervals[][2], int intervalsSize, int mergedIntervals[][2], int* mergedSize) {
+    if (intervalsSize == 0) {
+        *mergedSize = 0;
+        return;
+    }
+
+    qsort(intervals, intervalsSize, sizeof(intervals[0]), compareIntervals);
+
+    int tempInterval[2];
+    int tempSize = 0;
+
+    for (int i = 0; i < intervalsSize; i++) {
+        if (i == 0) {
+            tempInterval[0] = intervals[i][0];
+            tempInterval[1] = intervals[i][1];
+            tempSize++;
+        } else {
+            if (intervals[i][0] <= tempInterval[1]) {
+                tempInterval[1] = (intervals[i][1] > tempInterval[1]) ? intervals[i][1] : tempInterval[1];
+            } else {
+                mergedIntervals[*mergedSize][0] = tempInterval[0];
+                mergedIntervals[*mergedSize][1] = tempInterval[1];
+                (*mergedSize)++;
+                tempInterval[0] = intervals[i][0];
+                tempInterval[1] = intervals[i][1];
+                tempSize++;
+            }
+        }
+    }
+
+    mergedIntervals[*mergedSize][0] = tempInterval[0];
+    mergedIntervals[*mergedSize][1] = tempInterval[1];
+    (*mergedSize)++;
+}
+
+int main() {
+    int intervals[][2] = {{1, 3}, {2, 6}, {8, 10}, {15, 18}};
+    int intervalsSize = sizeof(intervals) / sizeof(intervals[0]);
+
+    int mergedIntervals[100][2]; // Adjust the size as needed
+    int mergedSize = 0;
+
+    mergeIntervals(intervals, intervalsSize, mergedIntervals, &mergedSize);
+
+    printf("Merged intervals:\n");
+    for (int i = 0; i < mergedSize; i++) {
+        printf("[%d, %d] ", mergedIntervals[i][0], mergedIntervals[i][1]);
+    }
+
+    return 0;
+}
